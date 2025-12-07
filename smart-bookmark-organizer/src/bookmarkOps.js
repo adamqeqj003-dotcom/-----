@@ -317,6 +317,38 @@ const BookmarkOps = {
 
         // 从根节点开始构建
         return buildFolderTree(tree[0].children || []);
+    },
+
+    /**
+     * 获取完整书签树 (用于白名单选择器)
+     * 返回文件夹和书签，可用于选择任意节点
+     * @returns {Promise<Array>} 完整书签树
+     */
+    async getFullTree() {
+        const tree = await this.getTree();
+
+        const buildFullTree = (nodes) => {
+            const items = [];
+
+            for (const node of nodes) {
+                if (node.title === undefined) continue; // 跳过根节点
+
+                const item = {
+                    id: node.id,
+                    title: node.title || '(无标题)',
+                    parentId: node.parentId,
+                    url: node.url || null,  // 有 url 表示是书签
+                    isFolder: !node.url,
+                    children: node.children ? buildFullTree(node.children) : []
+                };
+                items.push(item);
+            }
+
+            return items;
+        };
+
+        // 从根节点开始构建
+        return buildFullTree(tree[0].children || []);
     }
 };
 

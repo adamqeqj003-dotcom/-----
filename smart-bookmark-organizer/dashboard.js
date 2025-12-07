@@ -514,30 +514,38 @@ async function openFolderModal() {
     AppState.selectedFolderTitle = null;
 
     try {
-        const folderTree = await BookmarkOps.getFolderTree();
-        renderFolderTree(folderTree, DOM.folderTree);
+        // 白名单模式下获取完整树 (包含书签)，否则只获取文件夹
+        const tree = AppState.folderSelectorMode === 'whitelist'
+            ? await BookmarkOps.getFullTree()
+            : await BookmarkOps.getFolderTree();
+        renderBookmarkTree(tree, DOM.folderTree);
     } catch (error) {
         DOM.folderTree.innerHTML = '<div class="text-error">加载失败</div>';
-        console.error('[Dashboard] 加载文件夹树失败:', error);
+        console.error('[Dashboard] 加载书签树失败:', error);
     }
 }
 
 /**
- * 渲染文件夹树
- * @param {Array} folders - 文件夹数组
+ * 渲染书签树 (支持文件夹和书签)
+ * @param {Array} items - 书签/文件夹数组
  * @param {HTMLElement} container - 容器元素
  */
-function renderFolderTree(folders, container) {
+function renderBookmarkTree(items, container) {
     container.innerHTML = '';
 
-    const renderNode = (folder, parentEl) => {
+    const renderNode = (item, parentEl) => {
         const itemEl = document.createElement('div');
-        itemEl.className = 'folder-item';
-        itemEl.dataset.id = folder.id;
-        itemEl.dataset.title = folder.title;
+        itemEl.className = item.isFolder ? 'folder-item' : 'folder-item bookmark-item';
+        itemEl.dataset.id = item.id;
+        itemEl.dataset.title = item.title;
+
+        // 文件夹用 📁，书签用 🔗
+        const icon = item.isFolder ? '📁' : '🔗';
+        const titleText = item.title.length > 40 ? item.title.substring(0, 40) + '...' : item.title;
+
         itemEl.innerHTML = `
-      <span class="folder-icon">📁</span>
-      <span class="folder-title">${folder.title || '(无标题)'}</span>
+      <span class="folder-icon">${icon}</span>
+      <span class="folder-title">${titleText}</span>
     `;
 
         itemEl.addEventListener('click', (e) => {
@@ -546,23 +554,23 @@ function renderFolderTree(folders, container) {
             document.querySelectorAll('.folder-item.selected').forEach(el => el.classList.remove('selected'));
             itemEl.classList.add('selected');
 
-            AppState.selectedFolderId = folder.id;
-            AppState.selectedFolderTitle = folder.title;
+            AppState.selectedFolderId = item.id;
+            AppState.selectedFolderTitle = item.title;
             DOM.btnConfirmFolder.disabled = false;
         });
 
         parentEl.appendChild(itemEl);
 
-        // 渲染子文件夹
-        if (folder.children && folder.children.length > 0) {
+        // 递归渲染子节点 (只有文件夹有子节点)
+        if (item.children && item.children.length > 0) {
             const childrenEl = document.createElement('div');
             childrenEl.className = 'folder-children';
-            folder.children.forEach(child => renderNode(child, childrenEl));
+            item.children.forEach(child => renderNode(child, childrenEl));
             parentEl.appendChild(childrenEl);
         }
     };
 
-    folders.forEach(folder => renderNode(folder, container));
+    items.forEach(item => renderNode(item, container));
 }
 
 /**
@@ -584,16 +592,16 @@ function handleFolderConfirm() {
 }
 
 /**
- * 打开文件夹选择器用于添加白名单
+ * 打开书签选择器用于添加白名单 (支持文件夹和书签)
  */
 function openFolderSelectorForWhitelist() {
     AppState.folderSelectorMode = 'whitelist';
     DOM.modalWhitelist.classList.add('hidden');  // 先关闭白名单弹窗
-    openFolderModal();  // 打开文件夹选择器
+    openFolderModal();  // 打开选择器
 }
 
 /**
- * 将选中的文件夹添加到白名单
+ * 将选中的项目添加到白名单 (文件夹或书签)
  */
 async function addSelectedToWhitelist() {
     if (!AppState.selectedFolderId) return;

@@ -77,21 +77,7 @@
 
   <p class="hint">💡 控制台在独立标签页运行，可自由切换页面</p>
 
-  <script>
-    // 打开独立控制台
-    document.getElementById('btn-open-dashboard').addEventListener('click', () => {
-      chrome.tabs.create({ url: chrome.runtime.getURL('dashboard.html') });
-      window.close();
-    });
-
-    // 快速开始：打开控制台并自动执行快速整理
-    document.getElementById('btn-quick-start').addEventListener('click', () => {
-      chrome.tabs.create({
-        url: chrome.runtime.getURL('dashboard.html') + '?autostart=quick'
-      });
-      window.close();
-    });
-  </script>
+  <script src="popup.js"></script>
 </body>
 
 </html>
