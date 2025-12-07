@@ -5,8 +5,8 @@
 
 // ==================== 常量定义 ====================
 
-// 死链归档文件夹名称 (墓地)
-const DEAD_LINKS_FOLDER = '_Dead_Links_Archive';
+// 死链归档文件夹名称 (墓地) - 中文名称
+const DEAD_LINKS_FOLDER = '_死链归档';
 
 // ==================== 书签操作类 ====================
 
@@ -235,9 +235,9 @@ const BookmarkOps = {
             // 1. 查找或创建墓地文件夹
             const archiveFolder = await this.findOrCreateFolder(DEAD_LINKS_FOLDER, '1');
 
-            // 2. 生成新标题 (添加日期标记)
+            // 2. 生成新标题 (添加日期标记) - 中文标签
             const dateStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-            const newTitle = `[DEAD ${dateStr}] ${originalTitle}`;
+            const newTitle = `[失效 ${dateStr}] ${originalTitle}`;
 
             // 3. 重命名
             await this.rename(nodeId, newTitle);

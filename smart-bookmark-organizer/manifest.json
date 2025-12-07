@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "Smart Bookmark Organizer",
+    "name": "智能书签整理器",
     "description": "利用 DeepSeek AI 智能整理浏览器收藏夹，自动分类与死链检测",
     "version": "1.0.0",
     "icons": {
@@ -10,7 +10,7 @@
     },
     "action": {
         "default_popup": "popup.html",
-        "default_title": "Smart Bookmark Organizer"
+        "default_title": "智能书签整理器"
     },
     "permissions": [
         "bookmarks",

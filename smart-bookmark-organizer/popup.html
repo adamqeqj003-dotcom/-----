@@ -4,213 +4,94 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Bookmark Organizer</title>
-  <link rel="stylesheet" href="lib/tailwind.min.css">
-  <link rel="stylesheet" href="popup.css">
+  <title>智能书签整理器</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 280px;
+      padding: 16px;
+      background: #0d1117;
+      color: #39d353;
+      font-family: 'Consolas', 'Monaco', monospace;
+    }
+
+    h1 {
+      font-size: 14px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 8px;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #39d353;
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      background: #21262d;
+      border-color: #39d353;
+    }
+
+    .btn-primary {
+      background: #238636;
+      border-color: #238636;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #2ea043;
+    }
+
+    .hint {
+      margin-top: 8px;
+      font-size: 11px;
+      color: #8b949e;
+      text-align: center;
+    }
+  </style>
 </head>
 
-<body class="bg-dark text-green-terminal font-mono w-[1000px] min-h-[600px]">
+<body>
+  <h1>📚 智能书签整理器</h1>
 
-  <!-- ==================== View A: Home (Dashboard) ==================== -->
-  <div id="view-home" class="view-container p-4">
+  <button class="btn btn-primary" id="btn-open-dashboard">
+    🚀 打开控制台
+  </button>
 
-    <!-- Header -->
-    <header class="flex justify-between items-center mb-4">
-      <h1 class="text-lg font-bold">📚 Smart Bookmark</h1>
-      <button id="btn-settings" class="icon-btn" title="设置">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-      </button>
-    </header>
+  <button class="btn" id="btn-quick-start">
+    ⚡ 快速整理 (直接开始)
+  </button>
 
-    <!-- Status Bar -->
-    <div class="status-bar flex items-center gap-4 mb-4 text-sm">
-      <div class="flex items-center gap-2">
-        <span id="status-dot" class="status-dot disconnected"></span>
-        <span id="status-text">未连接</span>
-      </div>
-      <div class="text-gray-secondary">
-        延时: <span id="status-delay">500</span>ms
-      </div>
-    </div>
+  <p class="hint">💡 控制台在独立标签页运行，可自由切换页面</p>
 
-    <!-- Progress Section (Hidden by default) -->
-    <div id="progress-section" class="hidden mb-4">
-      <!-- 警告条 -->
-      <div class="warning-banner">
-        ⚠️ 正在处理中... 请勿关闭此窗口或点击其他区域！
-      </div>
+  <script>
+    // 打开独立控制台
+    document.getElementById('btn-open-dashboard').addEventListener('click', () => {
+      chrome.tabs.create({ url: chrome.runtime.getURL('dashboard.html') });
+      window.close();
+    });
 
-      <!-- 进度条 -->
-      <div class="progress-container">
-        <div class="flex justify-between text-xs mb-1">
-          <span id="progress-text">处理中: 0/0</span>
-          <button id="btn-stop" class="stop-btn">停止</button>
-        </div>
-        <div class="progress-bar-bg">
-          <div id="progress-bar" class="progress-bar-fill" style="width: 0%"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Action Area -->
-    <div class="action-area space-y-3 mb-4">
-      <button id="btn-quick-tidy" class="action-btn w-full">
-        ⚡ 快速整理 (仅根目录散乱项)
-      </button>
-      <button id="btn-deep-clean" class="action-btn w-full">
-        🔥 深度清理 (全部)
-      </button>
-      <button id="btn-select-folder" class="action-btn w-full">
-        📁 选择指定文件夹
-      </button>
-    </div>
-
-    <!-- Log Console -->
-    <div class="log-console-container">
-      <div class="log-header">
-        <span>📟 控制台</span>
-        <button id="btn-clear-log" class="text-xs text-gray-secondary hover:text-green-terminal">清空</button>
-      </div>
-      <div id="log-console" class="log-console">
-        <div class="log-line">> 系统就绪...</div>
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="mt-4 text-center">
-      <button id="btn-whitelist" class="text-sm text-gray-secondary hover:text-green-terminal underline">
-        🔒 管理白名单
-      </button>
-    </footer>
-  </div>
-
-  <!-- ==================== View B: Settings ==================== -->
-  <div id="view-settings" class="view-container hidden p-4">
-
-    <!-- Header -->
-    <header class="flex items-center gap-3 mb-6">
-      <button id="btn-back" class="icon-btn" title="返回">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
-      <h1 class="text-lg font-bold">⚙️ 设置</h1>
-    </header>
-
-    <!-- Form Group 1: Connection -->
-    <div class="settings-group mb-6">
-      <h2 class="settings-title">🔗 API 连接</h2>
-
-      <div class="form-field">
-        <label for="input-api-url">API Base URL</label>
-        <input type="text" id="input-api-url" value="https://api.deepseek.com" placeholder="https://api.deepseek.com">
-      </div>
-
-      <div class="form-field">
-        <label for="input-api-key">API Key</label>
-        <input type="password" id="input-api-key" placeholder="sk-xxxxxxxxxxxxxxxx">
-      </div>
-
-      <button id="btn-test-connection" class="action-btn w-full mt-3">
-        🧪 测试连接
-      </button>
-    </div>
-
-    <!-- Form Group 2: Strategy -->
-    <div class="settings-group">
-      <h2 class="settings-title">📋 策略设置</h2>
-
-      <div class="toggle-field">
-        <label for="toggle-dead-link">检测死链</label>
-        <input type="checkbox" id="toggle-dead-link" class="toggle-input" checked>
-      </div>
-
-      <div class="toggle-field">
-        <label for="toggle-scatter">强制打散模式</label>
-        <input type="checkbox" id="toggle-scatter" class="toggle-input">
-      </div>
-
-      <div class="toggle-field">
-        <label for="toggle-prefix">添加分类前缀</label>
-        <input type="checkbox" id="toggle-prefix" class="toggle-input" checked>
-      </div>
-
-      <div class="form-field mt-4">
-        <label for="input-delay">请求延时 (ms)</label>
-        <input type="number" id="input-delay" value="500" min="100" max="5000" step="100">
-      </div>
-    </div>
-
-    <!-- Save Button -->
-    <button id="btn-save-settings" class="action-btn action-btn-primary w-full mt-6">
-      💾 保存设置
-    </button>
-  </div>
-
-  <!-- ==================== Modal: Folder Selector ==================== -->
-  <div id="modal-folder" class="modal-overlay hidden">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>📂 选择文件夹</h3>
-        <button class="modal-close" data-modal="modal-folder">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div id="folder-tree" class="folder-tree">
-          <!-- 树形结构由 JS 动态生成 -->
-          <div class="text-gray-secondary text-sm">加载中...</div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button id="btn-confirm-folder" class="action-btn action-btn-primary" disabled>确认选择</button>
-        <button class="action-btn modal-close" data-modal="modal-folder">取消</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== Modal: Whitelist Manager ==================== -->
-  <div id="modal-whitelist" class="modal-overlay hidden">
-    <div class="modal-content" style="max-width: 500px;">
-      <div class="modal-header">
-        <h3>🔒 白名单管理</h3>
-        <button class="modal-close" data-modal="modal-whitelist">&times;</button>
-      </div>
-      <div class="modal-body">
-        <!-- 添加锁定区域 -->
-        <div class="mb-4">
-          <button id="btn-add-to-whitelist" class="action-btn w-full">
-            ➕ 添加文件夹/书签到白名单
-          </button>
-        </div>
-
-        <!-- 已锁定列表 -->
-        <div class="text-xs text-gray-secondary mb-2">已锁定项目:</div>
-        <div id="whitelist-container" class="whitelist-list">
-          <!-- 白名单列表由 JS 动态生成 -->
-          <div class="text-gray-secondary text-sm text-center py-4">暂无锁定项</div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="action-btn modal-close" data-modal="modal-whitelist">关闭</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== Toast Notification ==================== -->
-  <div id="toast" class="toast hidden">
-    <span id="toast-message"></span>
-  </div>
-
-  <!-- Scripts -->
-  <script src="src/config.js"></script>
-  <script src="src/logger.js"></script>
-  <script src="src/bookmarkOps.js"></script>
-  <script src="src/cleaner.js"></script>
-  <script src="src/deepseek.js"></script>
-  <script src="popup.js"></script>
+    // 快速开始：打开控制台并自动执行快速整理
+    document.getElementById('btn-quick-start').addEventListener('click', () => {
+      chrome.tabs.create({
+        url: chrome.runtime.getURL('dashboard.html') + '?autostart=quick'
+      });
+      window.close();
+    });
+  </script>
 </body>
 
 </html>

@@ -13,18 +13,18 @@ const DeepSeekAPI = {
     // 模型配置
     _model: 'deepseek-chat',
 
-    // 分类预设 (用于 Prompt)
+    // 分类预设 (用于 Prompt) - 中文分类
     _categories: [
-        'Tech',       // 技术/编程
-        'News',       // 新闻资讯
-        'Tools',      // 工具/软件
-        'Learning',   // 学习/教程
-        'Shopping',   // 购物/电商
-        'Social',     // 社交/社区
-        'Media',      // 媒体/娱乐
-        'Work',       // 工作/办公
-        'Finance',    // 金融/财务
-        'Other'       // 其他
+        '技术',       // 编程、开发、IT
+        '新闻',       // 新闻资讯
+        '工具',       // 软件、在线工具
+        '学习',       // 教程、课程
+        '购物',       // 电商、购物
+        '社交',       // 社区、论坛
+        '娱乐',       // 视频、音乐、游戏
+        '工作',       // 办公、协作
+        '金融',       // 理财、投资
+        '其他'        // 无法分类
     ],
 
     /**
@@ -124,7 +124,7 @@ const DeepSeekAPI = {
             if (!this._apiKey) {
                 return {
                     success: false,
-                    category: 'Other',
+                    category: '其他',
                     error: '未配置 API Key'
                 };
             }
@@ -143,7 +143,7 @@ const DeepSeekAPI = {
                     messages: [
                         {
                             role: 'system',
-                            content: 'You are a bookmark classification assistant. Respond with ONLY the category name, nothing else.'
+                            content: '你是一个书签分类助手。请只回复分类名称，不要回复任何其他内容。'
                         },
                         { role: 'user', content: prompt }
                     ],
@@ -159,7 +159,7 @@ const DeepSeekAPI = {
                 if (response.status === 429) {
                     return {
                         success: false,
-                        category: 'Other',
+                        category: '其他',
                         error: 'API_RATE_LIMITED',
                         retryAfter: parseInt(response.headers.get('Retry-After') || '60', 10)
                     };
@@ -167,13 +167,13 @@ const DeepSeekAPI = {
 
                 return {
                     success: false,
-                    category: 'Other',
+                    category: '其他',
                     error: `HTTP ${response.status}: ${errorData.error?.message || '请求失败'}`
                 };
             }
 
             const data = await response.json();
-            const rawCategory = data.choices?.[0]?.message?.content?.trim() || 'Other';
+            const rawCategory = data.choices?.[0]?.message?.content?.trim() || '其他';
 
             // 验证返回的分类是否在预设列表中
             const category = this._validateCategory(rawCategory);
@@ -187,7 +187,7 @@ const DeepSeekAPI = {
         } catch (error) {
             return {
                 success: false,
-                category: 'Other',
+                category: '其他',
                 error: error.message
             };
         }
@@ -208,14 +208,14 @@ const DeepSeekAPI = {
             domain = url;
         }
 
-        return `Classify this bookmark into ONE of these categories:
-${this._categories.join(', ')}
+        return `请将这个书签分类到以下类别之一：
+${this._categories.join('、')}
 
-Bookmark:
-- Title: ${title}
-- Domain: ${domain}
+书签信息：
+- 标题: ${title}
+- 域名: ${domain}
 
-Reply with ONLY the category name.`;
+只需回复分类名称，不要回复其他内容。`;
     },
 
     /**
@@ -235,28 +235,37 @@ Reply with ONLY the category name.`;
             }
         }
 
-        // 部分匹配 (如 "技术" 匹配 "Tech")
+        // 关键词匹配 (处理 AI 可能返回的变体)
         const keywordMap = {
-            '技术': 'Tech',
-            '编程': 'Tech',
-            '新闻': 'News',
-            '工具': 'Tools',
-            '学习': 'Learning',
-            '购物': 'Shopping',
-            '社交': 'Social',
-            '媒体': 'Media',
-            '工作': 'Work',
-            '金融': 'Finance'
+            '科技': '技术',
+            '编程': '技术',
+            '开发': '技术',
+            'tech': '技术',
+            '资讯': '新闻',
+            'news': '新闻',
+            '软件': '工具',
+            'tools': '工具',
+            '教程': '学习',
+            '课程': '学习',
+            '电商': '购物',
+            '社区': '社交',
+            '论坛': '社交',
+            '视频': '娱乐',
+            '游戏': '娱乐',
+            '音乐': '娱乐',
+            '办公': '工作',
+            '理财': '金融',
+            '投资': '金融'
         };
 
         for (const [keyword, category] of Object.entries(keywordMap)) {
-            if (rawCategory.includes(keyword)) {
+            if (rawCategory.toLowerCase().includes(keyword)) {
                 return category;
             }
         }
 
-        // 默认返回 Other
-        return 'Other';
+        // 默认返回 其他
+        return '其他';
     },
 
     /**

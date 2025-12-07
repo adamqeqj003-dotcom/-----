@@ -13,14 +13,14 @@ chrome.runtime.onInstalled.addListener(() => {
     // 为书签创建"锁定"菜单项
     chrome.contextMenus.create({
         id: 'lock-bookmark',
-        title: '🔒 锁定/加入白名单 (Smart Bookmark)',
+        title: '🔒 锁定/加入白名单 (智能书签)',
         contexts: ['bookmark']
     });
 
     // 为书签创建"解锁"菜单项
     chrome.contextMenus.create({
         id: 'unlock-bookmark',
-        title: '🔓 解锁/移出白名单 (Smart Bookmark)',
+        title: '🔓 解锁/移出白名单 (智能书签)',
         contexts: ['bookmark']
     });
 
