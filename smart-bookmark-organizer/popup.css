@@ -15,10 +15,10 @@
   --color-red-warning: #f85149;
   --color-red-bg: #3d1c1c;
   --color-yellow: #d29922;
-  
+
   /* 字体 */
   --font-mono: 'Fira Code', 'Consolas', 'Courier New', monospace;
-  
+
   /* 间距 */
   --radius-sm: 4px;
   --radius-md: 6px;
@@ -37,15 +37,30 @@ body {
   font-family: var(--font-mono);
   font-size: 13px;
   line-height: 1.5;
+  width: 800px;
+  min-height: 600px;
 }
 
 /* ---------- 工具类 ---------- */
-.bg-dark { background-color: var(--color-bg-dark); }
-.text-green-terminal { color: var(--color-green-terminal); }
-.text-gray-secondary { color: var(--color-gray-secondary); }
-.font-mono { font-family: var(--font-mono); }
+.bg-dark {
+  background-color: var(--color-bg-dark);
+}
 
-.hidden { display: none !important; }
+.text-green-terminal {
+  color: var(--color-green-terminal);
+}
+
+.text-gray-secondary {
+  color: var(--color-gray-secondary);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.hidden {
+  display: none !important;
+}
 
 /* ---------- 视图容器 ---------- */
 .view-container {
@@ -108,8 +123,15 @@ body {
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
 }
 
 /* ---------- 进度条 ---------- */
@@ -213,10 +235,21 @@ body {
   word-break: break-all;
 }
 
-.log-line.error { color: var(--color-red-warning); }
-.log-line.warn { color: var(--color-yellow); }
-.log-line.success { color: var(--color-green-terminal); }
-.log-line.info { color: var(--color-gray-secondary); }
+.log-line.error {
+  color: var(--color-red-warning);
+}
+
+.log-line.warn {
+  color: var(--color-yellow);
+}
+
+.log-line.success {
+  color: var(--color-green-terminal);
+}
+
+.log-line.info {
+  color: var(--color-gray-secondary);
+}
 
 /* 滚动条样式 */
 .log-console::-webkit-scrollbar {
@@ -496,6 +529,7 @@ body {
     opacity: 0;
     transform: translateX(-50%) translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(-50%) translateY(0);

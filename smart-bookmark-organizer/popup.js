@@ -18,6 +18,9 @@ const AppState = {
     selectedFolderId: null,
     selectedFolderTitle: null,
 
+    // 文件夹选择器模式: 'process' | 'whitelist'
+    folderSelectorMode: 'process',
+
     // 配置缓存
     config: null
 };
@@ -62,6 +65,7 @@ const DOM = {
     btnConfirmFolder: null,
     modalWhitelist: null,
     whitelistContainer: null,
+    btnAddToWhitelist: null,
 
     // Toast
     toast: null,
@@ -138,6 +142,7 @@ function initDOMReferences() {
     DOM.btnConfirmFolder = document.getElementById('btn-confirm-folder');
     DOM.modalWhitelist = document.getElementById('modal-whitelist');
     DOM.whitelistContainer = document.getElementById('whitelist-container');
+    DOM.btnAddToWhitelist = document.getElementById('btn-add-to-whitelist');
 
     // Toast
     DOM.toast = document.getElementById('toast');
@@ -189,6 +194,13 @@ function bindEvents() {
 
     // 白名单
     DOM.btnWhitelist.addEventListener('click', openWhitelistModal);
+
+    // 延迟绑定白名单添加按钮 (因为它在 Modal 内)
+    setTimeout(() => {
+        if (DOM.btnAddToWhitelist) {
+            DOM.btnAddToWhitelist.addEventListener('click', openFolderSelectorForWhitelist);
+        }
+    }, 100);
 
     // Modal 关闭按钮
     document.querySelectorAll('.modal-close').forEach(btn => {
@@ -485,6 +497,11 @@ function setButtonsEnabled(enabled) {
  * 打开文件夹选择器
  */
 async function openFolderModal() {
+    // 如果不是从白名单调用，重置模式
+    if (AppState.folderSelectorMode !== 'whitelist') {
+        AppState.folderSelectorMode = 'process';
+    }
+
     DOM.modalFolder.classList.remove('hidden');
     DOM.folderTree.innerHTML = '<div class="text-gray-secondary text-sm">加载中...</div>';
     DOM.btnConfirmFolder.disabled = true;
@@ -550,10 +567,48 @@ function handleFolderConfirm() {
     if (!AppState.selectedFolderId) return;
 
     DOM.modalFolder.classList.add('hidden');
-    Logger.info(`已选择文件夹: "${AppState.selectedFolderTitle}"`);
 
-    // 开始处理选中的文件夹
-    startProcessing('folder');
+    if (AppState.folderSelectorMode === 'whitelist') {
+        // 白名单模式：添加选中项到白名单
+        addSelectedToWhitelist();
+    } else {
+        // 处理模式：开始处理选中的文件夹
+        Logger.info(`已选择文件夹: "${AppState.selectedFolderTitle}"`);
+        startProcessing('folder');
+    }
+}
+
+/**
+ * 打开文件夹选择器用于添加白名单
+ */
+function openFolderSelectorForWhitelist() {
+    AppState.folderSelectorMode = 'whitelist';
+    DOM.modalWhitelist.classList.add('hidden');  // 先关闭白名单弹窗
+    openFolderModal();  // 打开文件夹选择器
+}
+
+/**
+ * 将选中的文件夹添加到白名单
+ */
+async function addSelectedToWhitelist() {
+    if (!AppState.selectedFolderId) return;
+
+    try {
+        await Whitelist.add(AppState.selectedFolderId);
+        Logger.success(`已锁定: "${AppState.selectedFolderTitle}"`);
+        showToast(`✅ 已添加到白名单: ${AppState.selectedFolderTitle}`, false);
+
+        // 重新打开白名单弹窗以刷新列表
+        setTimeout(() => {
+            openWhitelistModal();
+        }, 300);
+    } catch (error) {
+        Logger.error(`添加白名单失败: ${error.message}`);
+        showToast('❌ 添加失败', true);
+    }
+
+    // 重置模式
+    AppState.folderSelectorMode = 'process';
 }
 
 // ==================== 白名单 Modal ====================
