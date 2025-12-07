@@ -1,0 +1,48 @@
+# Project Master Plan: Smart Bookmark Organizer (DeepSeek Edition)
+
+## 1. 术语表 (Glossary)
+为了确保所有角色（包括未来的开发人员）语言统一，定义以下核心术语：
+
+* **The Graveyard (墓地)**: 指代 `_Dead_Links_Archive` 文件夹，所有死链的最终归宿。
+* **Whitelist (白名单)**: 用户手动锁定的文件夹或 URL 列表，存储在 `chrome.storage.local` 中。可以通过 UI 面板管理，也可以通过右键菜单添加。
+* **Scatter Mode (打散模式)**: 一种激进的整理策略。开启后，插件会无视原有的文件夹结构，将子文件夹内的书签全部“倒出来”重新根据 AI 建议归类。
+* **Popup Context**: 指插件点击图标后弹出的窗口环境。注意：一旦用户点击窗口外部，此环境会立即销毁 (Destroyed)，所有未完成的 JS 进程会被强制终止。
+
+## 2. 最终开发路线图 (Final Roadmap)
+
+### Phase 1: 骨架构建 (Skeleton)
+* [ ] **Manifest 配置**: 完成 `manifest.json` (V3, Permissions, Content CSP)。
+* [ ] **UI 搭建**: 实现 `popup.html` 和 CSS (Tailwind Local)。重点是 "View A/B" 的切换逻辑和 "Warning Banner" 的默认隐藏状态。
+* [ ] **Background Service**: 实现 `background.js`，确保插件安装后右键菜单能立即出现。
+
+### Phase 2: 核心逻辑 (Core Logic)
+* [ ] **API 联调**: 实现 `deepseek.js`，确保能通过 `fetch` 连通 API 并处理错误。
+* [ ] **书签操作封装**: 实现 `bookmarkOps.js` 中的 CRUD 和 `archiveDeadLink` (移动+重命名) 逻辑。
+* [ ] **死链检测**: 实现 `cleaner.js` 中的 `HEAD/GET` 请求逻辑，处理跨域 (CORS) 和 Timeout。
+
+### Phase 3: 胶水层与交互 (Integration)
+* [ ] **主控循环**: 在 `popup.js` 中编写 `processQueue`。关键点：
+    * 读取白名单 -> 过滤。
+    * 调用 DeepSeek -> 获取分类。
+    * 调用 bookmarkOps -> 移动。
+    * **Loop Delay**: 强制执行 500ms 间隔，并在 UI 实时更新 Log。
+* [ ] **警告机制**: 任务开始时 `classList.remove('hidden')` 显示警告条，结束时隐藏。
+
+### Phase 4: 验收测试 (QA & Delivery)
+* [ ] **冒烟测试**: API Key 是否能保存？右键菜单是否出现？
+* [ ] **破坏性测试**: 在整理过程中强行关闭窗口，再次打开是否能恢复状态（或至少不报错）？
+* [ ] **死链测试**: 模拟一个 404 页面，检查是否被成功移入 `_Dead_Links_Archive`。
+
+## 3. 最终风险评估 (Risk Assessment)
+
+| 风险点 | 严重级 | 应对方案 ( Mitigation) |
+| :--- | :--- | :--- |
+| **Popup 意外关闭** | High | 1. UI 红色闪烁警告 (已采纳) <br> 2. 单步原子化操作 (即便中断，已处理的书签已保存，不会回滚) |
+| **DeepSeek API 限流** | Medium | 1. 强制单线程执行 <br> 2. 默认设置 500ms Delay <br> 3. 遇到 429 错误自动暂停任务 |
+| **死链误判** | Medium | 采用“保守策略”：只有明确的 404/5xx 才判定为死，网络超时或 CORS 错误一律视为“存活”，防止误删。 |
+| **DOM 节点过多卡顿** | Low | Log Console 限制最大显示行数 (例如只保留最近 100 行)，防止内存泄漏。 |
+
+---
+
+**Signed off by:**
+Integration Director & QA Lead

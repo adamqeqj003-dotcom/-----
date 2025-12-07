@@ -1,0 +1,53 @@
+# Requirements Document: Smart Bookmark Organizer (DeepSeek Edition) v1.1
+
+## 1. Introduction (背景与技术路径)
+* 核心目标: 利用 DeepSeek 大模型语义理解能力，一键自动化整理浏览器收藏夹，自动隔离死链。
+* 技术基座: Chrome Extension (Manifest V3) + DeepSeek API
+
+## 2. Technical Constraints (技术硬约束)
+* 网络环境: 支持自定义 API Base URL。
+* 并发控制: 单线程队列执行，包含 Delay (默认 500ms) 以防浏览器卡死。
+* Token 优化: 仅发送 Title/URL/Meta，严禁发送 HTML。
+
+## 3. Functional Requirements (需求详情)
+
+### Req-1: API 连接与调试
+User Story: 配置 API 并确保连通性。
+Acceptance Criteria:
+1. 输入 Key 点击测试，插件发送 Hello 消息。
+2. 成功返回 200 显示已连接；失败则在控制台显示红色错误堆栈。
+3. 运行过程中，控制台实时滚动显示处理日志。
+
+### Req-2: 范围选择与智能整理 (Scope & Categorization)
+User Story: 灵活选择整理范围，并能保护我不希望被动的常用书签。
+Acceptance Criteria:
+1. UI 选项:
+   - 整理全部 (Root): 扫描整个收藏夹。
+   - 整理指定文件夹: 用户手动选择一个子目录。
+   - 整理根目录散乱网页 (Root Loose Items): 仅处理根目录下未归档的网页，不触碰已有文件夹。
+2. 白名单/锁定机制 (Whitelist):
+   - 用户可右键点击某个文件夹或网页，选择 "Lock/Pin" (锁定)。
+   - 被锁定的节点在遍历时被自动跳过，日志显示 "Skipped (Pinned)"。
+3. 文件夹处理逻辑:
+   - 默认模式: 跳过已有文件夹，不打散结构。
+   - 强制打散模式 (Force Scatter): 若勾选，则递归将文件夹内的书签取出重新分类。
+4. 核心分类与重命名 (Process & Rename):
+   - 获取标题 -> AI 分析 -> 返回分类词 (如 "Tech")。
+   - 检查是否存在 "Tech" 文件夹 (无则创建)。
+   - 移动书签至该文件夹。
+   - 重命名动作: 移动成功后，修改书签标题为 "[分类名] 原标题" (例如: "[Tech] Python入门")。
+
+### Req-3: 死链隔离机制 (Dead Link Handling)
+User Story: 自动归档打不开的网页。
+Acceptance Criteria:
+1. Pre-check: 对 URL 发起 HEAD/GET 请求。
+2. 判定: 状态码 >= 400 或超时 10s 视为死链。
+3. Action: 移动至 _Dead_Links_Archive 文件夹。
+4. Rename: 标题追加 (Dead: YYYY-MM-DD)。
+
+## 4. UI Design Brief (设计桥接)
+* Target Device: Chrome Popup
+* Design Style: 极简极客风 (Dark Mode + Green Text)
+* Page Map:
+    * [P1 - Home]: 状态栏、整理按钮组 (全部/散乱/指定)、锁定列表管理入口、黑色日志窗。
+    * [P2 - Settings]: API 配置、重命名规则开关 (是否加前缀)、死链检测开关。

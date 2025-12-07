@@ -1,0 +1,503 @@
+/* ===========================================
+   Smart Bookmark Organizer - 极简极客风样式
+   Design System: Terminal / GitHub Dark Theme
+   =========================================== */
+
+/* ---------- CSS Variables (设计令牌) ---------- */
+:root {
+  /* 颜色 */
+  --color-bg-dark: #0d1117;
+  --color-bg-card: #161b22;
+  --color-green-terminal: #3fb950;
+  --color-green-hover: #2ea043;
+  --color-gray-secondary: #8b949e;
+  --color-gray-border: #30363d;
+  --color-red-warning: #f85149;
+  --color-red-bg: #3d1c1c;
+  --color-yellow: #d29922;
+  
+  /* 字体 */
+  --font-mono: 'Fira Code', 'Consolas', 'Courier New', monospace;
+  
+  /* 间距 */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+}
+
+/* ---------- 基础重置 ---------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--color-bg-dark);
+  color: var(--color-green-terminal);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ---------- 工具类 ---------- */
+.bg-dark { background-color: var(--color-bg-dark); }
+.text-green-terminal { color: var(--color-green-terminal); }
+.text-gray-secondary { color: var(--color-gray-secondary); }
+.font-mono { font-family: var(--font-mono); }
+
+.hidden { display: none !important; }
+
+/* ---------- 视图容器 ---------- */
+.view-container {
+  min-height: 500px;
+}
+
+/* ---------- 图标按钮 ---------- */
+.icon-btn {
+  background: transparent;
+  border: 1px solid var(--color-gray-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-gray-secondary);
+  padding: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+  color: var(--color-green-terminal);
+  border-color: var(--color-green-terminal);
+}
+
+/* ---------- 状态栏 ---------- */
+.status-bar {
+  background: var(--color-bg-card);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-gray-border);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.connected {
+  background-color: var(--color-green-terminal);
+  box-shadow: 0 0 6px var(--color-green-terminal);
+}
+
+.status-dot.disconnected {
+  background-color: var(--color-red-warning);
+  box-shadow: 0 0 6px var(--color-red-warning);
+}
+
+/* ---------- 警告横幅 ---------- */
+.warning-banner {
+  background: var(--color-red-bg);
+  color: #ffa198;
+  padding: 10px;
+  border: 1px solid var(--color-red-warning);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+  animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* ---------- 进度条 ---------- */
+.progress-container {
+  background: var(--color-bg-card);
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-gray-border);
+}
+
+.progress-bar-bg {
+  background: var(--color-gray-border);
+  border-radius: 2px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  background: linear-gradient(90deg, var(--color-green-terminal), var(--color-green-hover));
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.stop-btn {
+  background: transparent;
+  border: 1px solid var(--color-red-warning);
+  color: var(--color-red-warning);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stop-btn:hover {
+  background: var(--color-red-warning);
+  color: #fff;
+}
+
+/* ---------- 动作按钮 ---------- */
+.action-btn {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-green-terminal);
+  color: var(--color-green-terminal);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.action-btn:hover:not(:disabled) {
+  background: var(--color-green-terminal);
+  color: var(--color-bg-dark);
+  box-shadow: 0 0 12px rgba(63, 185, 80, 0.4);
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-btn-primary {
+  background: var(--color-green-terminal);
+  color: var(--color-bg-dark);
+}
+
+.action-btn-primary:hover:not(:disabled) {
+  background: var(--color-green-hover);
+}
+
+/* ---------- 日志控制台 ---------- */
+.log-console-container {
+  background: #000;
+  border: 1px solid var(--color-gray-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background: var(--color-bg-card);
+  border-bottom: 1px solid var(--color-gray-border);
+  font-size: 11px;
+}
+
+.log-console {
+  height: 150px;
+  overflow-y: auto;
+  padding: 8px 10px;
+  font-size: 11px;
+}
+
+.log-line {
+  margin-bottom: 2px;
+  word-break: break-all;
+}
+
+.log-line.error { color: var(--color-red-warning); }
+.log-line.warn { color: var(--color-yellow); }
+.log-line.success { color: var(--color-green-terminal); }
+.log-line.info { color: var(--color-gray-secondary); }
+
+/* 滚动条样式 */
+.log-console::-webkit-scrollbar {
+  width: 6px;
+}
+
+.log-console::-webkit-scrollbar-track {
+  background: #000;
+}
+
+.log-console::-webkit-scrollbar-thumb {
+  background: var(--color-gray-border);
+  border-radius: 3px;
+}
+
+/* ---------- 设置页表单 ---------- */
+.settings-group {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-gray-border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.settings-title {
+  font-size: 14px;
+  margin-bottom: 12px;
+  color: var(--color-green-terminal);
+}
+
+.form-field {
+  margin-bottom: 12px;
+}
+
+.form-field label {
+  display: block;
+  font-size: 11px;
+  color: var(--color-gray-secondary);
+  margin-bottom: 4px;
+}
+
+.form-field input[type="text"],
+.form-field input[type="password"],
+.form-field input[type="number"] {
+  width: 100%;
+  background: var(--color-bg-dark);
+  border: 1px solid var(--color-gray-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-green-terminal);
+  padding: 8px 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  transition: border-color 0.2s ease;
+}
+
+.form-field input:focus {
+  outline: none;
+  border-color: var(--color-green-terminal);
+}
+
+/* 开关样式 */
+.toggle-field {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-gray-border);
+}
+
+.toggle-field:last-of-type {
+  border-bottom: none;
+}
+
+.toggle-field label {
+  font-size: 12px;
+  color: var(--color-gray-secondary);
+}
+
+.toggle-input {
+  appearance: none;
+  width: 36px;
+  height: 20px;
+  background: var(--color-gray-border);
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.toggle-input::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: var(--color-gray-secondary);
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.toggle-input:checked {
+  background: var(--color-green-terminal);
+}
+
+.toggle-input:checked::before {
+  left: 18px;
+  background: #fff;
+}
+
+/* ---------- Modal 模态框 ---------- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-gray-border);
+  border-radius: var(--radius-md);
+  width: 90%;
+  max-width: 350px;
+  max-height: 80%;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-gray-border);
+}
+
+.modal-header h3 {
+  font-size: 14px;
+  color: var(--color-green-terminal);
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--color-gray-secondary);
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  color: var(--color-red-warning);
+}
+
+.modal-body {
+  padding: 16px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--color-gray-border);
+}
+
+.modal-footer .action-btn {
+  flex: 1;
+  padding: 8px;
+  font-size: 12px;
+}
+
+/* ---------- 文件夹树 ---------- */
+.folder-tree {
+  font-size: 12px;
+}
+
+.folder-item {
+  padding: 6px 8px;
+  margin: 2px 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s ease;
+}
+
+.folder-item:hover {
+  background: var(--color-bg-dark);
+}
+
+.folder-item.selected {
+  background: rgba(63, 185, 80, 0.2);
+  border: 1px solid var(--color-green-terminal);
+}
+
+.folder-item .folder-icon {
+  font-size: 14px;
+}
+
+.folder-children {
+  margin-left: 16px;
+  border-left: 1px dashed var(--color-gray-border);
+  padding-left: 8px;
+}
+
+/* ---------- 白名单列表 ---------- */
+.whitelist-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.whitelist-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  margin: 4px 0;
+  background: var(--color-bg-dark);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+}
+
+.whitelist-item .item-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.whitelist-item .btn-remove {
+  background: transparent;
+  border: none;
+  color: var(--color-red-warning);
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+.whitelist-item .btn-remove:hover {
+  background: var(--color-red-warning);
+  color: #fff;
+  border-radius: var(--radius-sm);
+}
+
+/* ---------- Toast 通知 ---------- */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-green-terminal);
+  color: var(--color-green-terminal);
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  z-index: 2000;
+  animation: slideUp 0.3s ease;
+}
+
+.toast.error {
+  border-color: var(--color-red-warning);
+  color: var(--color-red-warning);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}

@@ -1,0 +1,65 @@
+# Tech Stack
+- Core: HTML5, CSS3, Vanilla JavaScript (ES6+)
+- UI Framework: Tailwind CSS (通过 CDN 或构建引入，用于快速实现极客风 UI)
+- Icons: FontAwesome 或 HeroIcons (SVG)
+
+# Design System (Geek / Terminal Style)
+- Background: #0d1117 (GitHub Dark) 或 #000000 (Pure Black)
+- Primary Text: #3fb950 (Terminal Green)
+- Secondary Text: #8b949e (Gray)
+- Font: 'Fira Code', 'Courier New', Monospace (等宽字体)
+- Border Radius: 4px (微圆角)
+
+# Page Requirements
+
+## 1. Popup UI Structure (index.html)
+无需复杂的路由，建议使用单页应用 (SPA) 逻辑，通过 hidden class 切换 View。
+
+### View A: Home (Dashboard)
+- Header: 标题 + 设置图标 (点击切换至 View B)。
+- Status Bar:
+  - 显示 API 连接状态 (默认为红点 Disconnected，连接成功变绿)。
+  - 显示当前延时配置 (例如 "Delay: 500ms")。
+- Progress Section (Hidden by default):
+  - 仅在任务运行时显示。
+  - 包含: [Stop] 按钮 (红色边框), 进度条 (Progress Bar), 计数文本 (Processing: 5/100)。
+- Action Area:
+  - Button 1: "Quick Tidy (Root Loose Items)"
+  - Button 2: "Deep Clean (All)"
+  - Button 3: "Process Specific Folder" -> 点击必须弹出一个 Modal (模态框)。
+- Log Console:
+  - 占据屏幕下方 40% 区域。
+  - 样式: 黑色背景，绿色文字，自动滚动到底部。
+  - 初始内容: "> System Ready..."
+- Footer: "Manage Whitelist" 链接 (点击打开 Modal)。
+
+### View B: Settings
+- Header: "< Back" 按钮 + 标题。
+- Form Group 1 (Connection):
+  - Input: API Base URL (Default: https://api.deepseek.com)
+  - Input: API Key (type="password")
+  - Button: "Test Connection" (点击触发模拟请求，成功则 Toast 提示 "200 OK")
+- Form Group 2 (Strategy):
+  - Toggle: Dead Link Detection (Default: On)
+  - Toggle: Force Scatter Mode (Default: Off)
+  - Toggle: Add Category Prefix (Default: On)
+  - Input: Request Delay (ms) (Default: 500)
+
+## 2. Critical Interaction Details (Must Implement)
+
+### Feature: Folder Selector Modal (树形选择器)
+- 当用户点击 "Process Specific Folder" 时触发。
+- 必须渲染一个模拟的文件夹树形结构 (Tree View)。
+- 支持展开/折叠 (Expand/Collapse)。
+- 选中某个节点后，高亮并启用 "Confirm" 按钮。
+
+### Feature: Whitelist Manager Modal
+- 列表展示已锁定的 URL 或 文件夹 ID。
+- 每个条目右侧有一个 "Unlock/Remove" 图标。
+
+### State Management (模拟逻辑)
+- 编写一段 JS 逻辑：点击 "Test Connection" 时，模拟 1秒 loading，然后随机返回 成功 或 失败，并显示对应的 Toast。
+- 编写一段 JS 逻辑：点击 "Quick Tidy" 时，锁定所有按钮 (Disabled)，显示进度条，并在 Log Console 中每隔 500ms 打印一行模拟日志 (例如 "> Analyzed Item #1...")，直到点击 Stop 或进度到达 100%。
+
+# Deliverables
+请输出完整的 index.html, styles.css (或 Tailwind 配置), popup.js 代码。确保代码结构清晰，注释包含 "TODO" 标记以提示后续对接真实 API 的位置。
